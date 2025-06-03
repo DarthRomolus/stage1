@@ -1,38 +1,51 @@
 package com.example.stage1.service;
 
-import com.example.stage1.entity.Student;
-import com.example.stage1.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.example.stage1.DTO.StudentDto;
 
 import java.util.List;
 
-@Service
-public class StudentService {
-    @Autowired
-    private StudentRepository StudentRepository;
+/**
+ * Service interface for student operations
+ * Works directly with DTOs to handle both data conversion and business logic
+ */
+public interface StudentService {
+    /**
+     * Get all students from the system as DTOs
+     * @return List of all students as DTOs
+     */
+    List<StudentDto> getAllStudents();
 
-    public Student createStudent(Student student){
-        return StudentRepository.save(student);
-    }
-    public List<Student> getAllStudents(){
-        return StudentRepository.findAll();
-    }
-    public  Student getStudentById(Long id){
-        return StudentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
-    }
-    public void updateStudent(Long Id,Student StudentDetails) {
-        Student pro=getStudentById(Id);
-        pro.setEmail(StudentDetails.getEmail());
-        pro.setId(StudentDetails.getId());
-        pro.setAge(StudentDetails.getAge());
-        pro.setLastname(StudentDetails.getLastname());
-        pro.setFirstname(StudentDetails.getFirstname());
+    /**
+     * Get student by ID as DTO
+     * @param id The student ID to retrieve
+     * @return The found student as DTO
+     * @throws com.example.stage1.exceptions.NotExists If a student doesn't exist
+     */
+    StudentDto getStudentById(Long id);
 
-        StudentRepository.save(pro);
-    }
-    public void deleteStudent(Long Id){
-        StudentRepository.delete(getStudentById(Id));
-    }
+    /**
+     * Add a new student
+     * @param studentDto Student data to add (as DTO)
+     * @return The added student as DTO with generated ID
+     * @throws com.example.stage1.exceptions.AlreadyExists If student with the same email already exists
+     */
+    StudentDto addStudent(StudentDto studentDto);
 
+    /**
+     * Update an existing student
+     * @param studentDto Updated student data (as DTO)
+     * @param id The ID from the path parameter
+     * @return The updated student as DTO
+     * @throws com.example.stage1.exceptions.NotExists If a student doesn't exist
+     * @throws com.example.stage1.exceptions.StudentIdAndIdMismatch If ID in a path doesn't match student ID
+     * @throws com.example.stage1.exceptions.AlreadyExists If email is already in use by another student
+     */
+    StudentDto updateStudent(StudentDto studentDto, Long id);
+
+    /**
+     * Delete a student by ID
+     * @param id Student ID to delete
+     * @throws com.example.stage1.exceptions.NotExists If student doesn't exist
+     */
+    void deleteStudent(Long id);
 }
